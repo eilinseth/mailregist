@@ -3,6 +3,24 @@ import UserModel from "../models"
 import { User } from "../types";
 import bcrypt from "bcryptjs"
 
+const getUsers = async (req:Request,res:Response):Promise<void> => {
+    try{
+        const users:User[] = await UserModel.find().select('_id username email status')
+
+        res.status(200).json({
+            status : 200 , 
+            message : users
+        })
+
+    }catch(error){
+        console.error(`${error}`)
+        res.status(500).json({
+            status : 500,
+            message : "Internal Server Error"
+        })
+    }
+}
+
 const register = async (req:Request,res:Response):Promise<void> => {
     try{
         const {username , email , password} = req.body
@@ -54,4 +72,40 @@ const register = async (req:Request,res:Response):Promise<void> => {
     
 }
 
-export {register}
+const login = async (req:Request,res:Response):Promise<void> =>{
+    try{
+        const {userMail,password} = req.body
+
+        const isRegistered = await UserModel.findOne({$or: [{username:userMail},{email:userMail}]})
+        if(!isRegistered){
+            res.status(400).json({
+                status : 400 ,
+                message : "Username or email not registered"
+            })
+            return
+        }
+
+        const match = await bcrypt.compare(password,isRegistered.password)
+        if(!match){
+            res.status(401).json({
+                status : 401,
+                message : "Wrong Password"
+            })
+            return
+        }else{
+            res.status(200).json({
+                status : 200 ,
+                message : "Login Success"
+            })
+        }
+
+    }catch(error){
+        console.error(`${error}`)
+        res.status(500).json({
+            status : 500,
+            message : "Internal server error"
+        })
+    }
+}
+
+export {register,login,getUsers}
