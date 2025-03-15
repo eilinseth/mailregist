@@ -1,8 +1,9 @@
 import axios,{AxiosError} from "axios"
 import { userBody } from "../../types"
 
-export const userRegister = async (data:userBody):Promise<void> =>{
+export const userRegister = async (data:userBody) =>{
     try{
+
         const res = await axios({
             method : "POST",
             url : "http://localhost:3000/register",
