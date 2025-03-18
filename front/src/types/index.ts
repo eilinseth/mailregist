@@ -1,4 +1,4 @@
-interface User {
+export interface User {
     _id : string,
     username : string,
     email : string,
@@ -11,6 +11,10 @@ interface User {
 
 export interface Users {
     data : User[]
+}
+
+export interface userId {
+    id:string
 }
 
 export interface userBody {
