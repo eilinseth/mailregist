@@ -6,7 +6,11 @@ export const userLogin = async (data:loginBody):Promise<void> =>{
         const res = await axios({
             method :"POST",
             url : "http://localhost:3000/login",
-            data : data
+            data : data,
+            withCredentials:true,
+            headers:{
+                "Content-Type" : "application/json"
+            }
         })
 
         return res.data

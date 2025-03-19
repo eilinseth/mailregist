@@ -28,3 +28,8 @@ export interface loginBody {
     userMail : string,
     password : string
 }
+
+export interface userDataBody{
+    username : string,
+    status : "unverified" | "verified"
+}
