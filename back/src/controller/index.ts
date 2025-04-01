@@ -125,6 +125,8 @@ const checkAuth = (req:Request,res:Response) =>{
                 isAuthenticated : false,
                 message : "Not Authenticated"
             })
+
+            return
         }
 
         res.json({

@@ -11,7 +11,7 @@ export default function Login (){
         onSuccess:()=>{
             reset()
             alert("Login Success")
-            navigate("/verif")
+            navigate("/status")
         },
         onError:(error) =>{
             alert(error)

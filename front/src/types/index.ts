@@ -13,9 +13,6 @@ export interface Users {
     data : User[]
 }
 
-export interface userId {
-    id:string
-}
 
 export interface userBody {
     username : string,

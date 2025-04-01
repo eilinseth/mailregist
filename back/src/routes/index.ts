@@ -10,7 +10,7 @@ router.post("/login",parser,login)
 router.get("/getUsers",parser, getUsers)
 router.get("/getUser/:id",parser, getUser)
 router.get("/checkAuth",parser,checkAuth)
-router.delete("/logout",parser,logout)
+router.get("/logout",parser,logout)
 
 
 export default router

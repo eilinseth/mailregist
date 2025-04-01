@@ -1,10 +1,12 @@
-import { userId } from "../../types";
 import axios , {AxiosError} from "axios";
 
-export const getUser = async  (id:userId) =>{
+
+export const getUser = async  (id:string) =>{
     try{
         const res = await axios.get(`http://localhost:3000/getUser/${id}`)
-
+        if(!res){
+            throw new Error()
+        }
         return res.data
         
     }catch(error:unknown){
