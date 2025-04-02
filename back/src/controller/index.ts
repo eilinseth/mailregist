@@ -2,6 +2,8 @@ import { Request,Response } from "express";
 import UserModel from "../models"
 import { User } from "../types";
 import bcrypt from "bcryptjs"
+import jwt from "jsonwebtoken"
+import { sendMail } from "../services/mailService";
 
 const getUsers = async (req:Request,res:Response):Promise<void> => {
     try{
@@ -24,14 +26,24 @@ const getUsers = async (req:Request,res:Response):Promise<void> => {
 const register = async (req:Request,res:Response):Promise<void> => {
     try{
         const {username , email , password} = req.body
-        if(!username && !email && !password){
+        if(!username || !email || !password){
             res.status(400).json({
                 status : 400,
                 message : "Bad Request - Missing Fields"
             })
             return
         }
+
+        const sameUser = await UserModel.findOne({$or : [{username} , {email}]})
+        if(sameUser){
+            res.status(409).json({
+                status : 409,
+                message : "Username or Email already in use"
+            })
     
+            return
+        }
+        
         const hashedPassword = await bcrypt.hash(password,10)
     
         const newUser = new UserModel({
@@ -41,26 +53,33 @@ const register = async (req:Request,res:Response):Promise<void> => {
             status : "unverified"
         })
     
-        const sameUser = await UserModel.findOne({$or : [{username:newUser.username} , {email:newUser.email}]})
-        if(sameUser){
-            res.status(409).json({
-                status : 409,
-                message : "Username or Email already in use"
+
+        await newUser.save()
+
+        if(!process.env.JWT_SECRET){
+            res.status(500).json({
+                status : 500 , 
+                message : "Jwt Secret is missing "
             })
-    
+
             return
-        }else{
-            await newUser.save()
-            res.status(200).json({
-                status : 200,
-                message : "Created",
-                added : {
-                    id : newUser._id,
-                    username : newUser.username,
-                    status : newUser.status
-                }
-            })
         }
+        
+        const token = jwt.sign({email} , process.env.JWT_SECRET , {expiresIn :"1h"})
+        console.log(token)
+
+        await sendMail(email,token)
+
+        res.status(200).json({
+            status : 200,
+            message : "Created",
+            added : {
+                id : newUser._id,
+                username : newUser.username,
+                status : newUser.status
+            }
+        })
+        
     }catch(error){
         console.error(`${error}`)
         res.status(500).json({
@@ -185,4 +204,27 @@ const getUser = async (req:Request,res:Response):Promise<void> =>{
     }
 }
 
-export {register,login,getUsers,getUser,logout,checkAuth}
+const verifyEmail = async (req:Request,res:Response):Promise<void> => {
+    const token = req.query.token
+    if(!token){
+        res.status(400).send("Token not provided")
+        return  
+    }  
+    try {
+    
+        const decoded = jwt.verify(token , process.env.JWT_SECRET)
+        await UserModel.updateOne({email:decoded.email},{$set : {status : "Verified"}})
+
+        res.send("Email verified")
+
+
+    }catch(error){
+        console.error(error)
+        res.status(400).json({
+            status : 400,
+            message : "Invalid or expired token"
+        })
+    }
+}
+
+export {register,login,getUsers,getUser,logout,checkAuth,verifyEmail}
