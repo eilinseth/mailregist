@@ -66,7 +66,7 @@ const register = async (req:Request,res:Response):Promise<void> => {
         }
         
         const token = jwt.sign({email} , process.env.JWT_SECRET , {expiresIn :"1h"})
-        console.log(token)
+    
 
         await sendMail(email,token)
 
@@ -111,6 +111,16 @@ const login = async (req:Request,res:Response):Promise<void> =>{
             })
             return
         }
+        if(isRegistered.status === "unverified"){
+            res.status(401).json({
+                status : 401 ,
+                message : "Please verifiy your email first"
+            })
+
+            return
+        }
+
+       
 
         const match = await bcrypt.compare(password,isRegistered.password)
         if(!match){

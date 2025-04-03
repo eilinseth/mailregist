@@ -3,14 +3,22 @@ import { NavLink } from "react-router-dom"
 import { useMutation } from "react-query"
 import { userRegister } from "../../api/Register"
 import { userBody } from "../../types"
+import { useNavigate } from "react-router-dom"
 
 export default function Register (){
-  const {register,handleSubmit,formState:{errors},reset} = useForm<userBody>()
+  const {register,handleSubmit,formState:{errors},reset,watch} = useForm<userBody>()
+
+  const password = watch("password")
+
+  const navigate = useNavigate()
+  
 
   const mutation = useMutation(userRegister,{
     onSuccess : () => {
       reset()
       alert("Register Success")
+      navigate("/verify")
+
     },
     onError : (error) => {
       alert(error)
@@ -21,8 +29,8 @@ export default function Register (){
   function onSubmit(data:userBody){
     const newData = {...data}
     newData.status = "unverified"
-    console.log(newData)
-    mutation.mutate(newData)
+    const {confirmPassword: _,...filteredData} = newData
+    mutation.mutate(filteredData)
   }
 
     return(
@@ -32,7 +40,7 @@ export default function Register (){
         <div className='flex flex-col gap-2'>
           <label htmlFor="email" className='text-[1.1rem]'>Email : </label>
           <input {...register("email",{required:"This field is required"})} type="email" id="email" placeholder='Enter your email' className='bg-slate-100 p-1 rounded-lg w-64 px-2 shadow-xl' />
-          {errors.email && <p>{errors.email.message}</p> }
+          {errors.email && <p className="text-red-500">{errors.email.message}</p> }
         </div>
         <div className='flex flex-col gap-2'>
           <label htmlFor="username" className='text-[1.1rem]'>Username : </label>
@@ -44,6 +52,12 @@ export default function Register (){
           <label htmlFor="password" className='text-[1.1rem]'>Password : </label>
           <input {...register("password",{required:"This field is required",minLength:{message:"Must contain minimal 8 character",value:8}})} type="password" id="password" placeholder='Enter your password' className='bg-slate-100 p-1 rounded-lg w-64 px-2 shadow-xl' />
           {errors.password && <p className="text-red-500">{errors.password.message}</p> }
+
+        </div>
+        <div className='flex flex-col gap-2'>
+          <label htmlFor="password" className='text-[1.1rem]'>Password Confirm: </label>
+          <input {...register("confirmPassword",{required:"This field is required",validate : (value) => value === password || "Password do not match",minLength:{message:"Must contain minimal 8 character",value:8}})} type="password" id="password" placeholder='Enter your password' className='bg-slate-100 p-1 rounded-lg w-64 px-2 shadow-xl' />
+          {errors.confirmPassword && <p className="text-red-500">{errors.confirmPassword.message}</p> }
 
         </div>
         

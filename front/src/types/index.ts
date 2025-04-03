@@ -19,6 +19,7 @@ export interface userBody {
     email : string
     password : string ,
     status : "unverified" | "verified"   
+    confirmPassword? : string
 }
 
 export interface loginBody { 

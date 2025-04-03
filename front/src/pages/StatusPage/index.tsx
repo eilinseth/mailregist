@@ -52,18 +52,14 @@ export default function StatusPage(){
                 console.error(error)
             }
         }
-        
-      
         fethcUser()
     },[userId])
 
-console.log(userData)
 
 
 return(
     <div className="bg-gradient-to-b from-pink-100 via-indigo-400 min-h-screen w-lg relative">
-        <nav className="flex items-center justify-end gap-2 mt-2">
-            <button className="bg-gray-600 font-semibold text-white p-1 rounded-xl px-2 w-20 cursor-pointer">Verify</button>
+        <nav className="flex items-center justify-end gap-2 mt-2 px-3">
             <button onClick={() => LogoutMutation.mutate()} className="bg-indigo-600 font-semibold text-white p-1 rounded-xl px-2 w-20 cursor-pointer">Logout</button>
         </nav>
         <div className="flex items-center justify-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
